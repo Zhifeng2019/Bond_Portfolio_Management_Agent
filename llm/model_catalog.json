@@ -1,0 +1,162 @@
+{
+  "models": {
+    "claude-opus": {
+      "provider": "anthropic",
+      "model": "claude-opus-4-1",
+      "display_name": "Claude Opus",
+      "supports_tool_call": true,
+      "default_agent_appointment": "senior-analyst-agent",
+      "default_skills_needed": [
+        "deep-analysis",
+        "strategy",
+        "risk-synthesis"
+      ],
+      "strengths": [
+        "Deep reasoning for ambiguous tasks",
+        "High quality long-form writing",
+        "Complex planning and multi-step analysis"
+      ],
+      "best_for": [
+        "Critical reports",
+        "Hard architecture decisions",
+        "Detailed synthesis from many inputs"
+      ],
+      "avoid_when": [
+        "Simple low-cost classification",
+        "High-throughput trivial transforms"
+      ],
+      "recommended_reasoning_level": "high",
+      "cost_tier": "high",
+      "latency_tier": "medium"
+    },
+    "claude-sonnet": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-5",
+      "display_name": "Claude Sonnet",
+      "supports_tool_call": true,
+      "default_agent_appointment": "general-purpose-agent",
+      "default_skills_needed": [
+        "coding",
+        "editing",
+        "reporting"
+      ],
+      "strengths": [
+        "Balanced quality, speed, and cost",
+        "Reliable coding and editing",
+        "Good instruction following"
+      ],
+      "best_for": [
+        "General agent work",
+        "Code generation and refactoring",
+        "Report drafting"
+      ],
+      "avoid_when": [
+        "When maximum reasoning depth is required"
+      ],
+      "recommended_reasoning_level": "medium",
+      "cost_tier": "medium",
+      "latency_tier": "fast"
+    },
+    "gpt": {
+      "provider": "openai",
+      "model": "gpt-5",
+      "display_name": "GPT",
+      "supports_tool_call": true,
+      "default_agent_appointment": "orchestrator-agent",
+      "default_skills_needed": [
+        "tool-use",
+        "coding",
+        "structured-output"
+      ],
+      "strengths": [
+        "Strong tool-use and coding workflows",
+        "Robust instruction following",
+        "High quality structured output"
+      ],
+      "best_for": [
+        "Agent orchestration",
+        "Code tasks",
+        "Schema-constrained responses"
+      ],
+      "avoid_when": [
+        "Ultra-low-cost batch operations"
+      ],
+      "recommended_reasoning_level": "medium-high",
+      "cost_tier": "high",
+      "latency_tier": "fast-medium"
+    },
+    "deepseek": {
+      "provider": "openai_compatible",
+      "model": "deepseek-chat",
+      "display_name": "DeepSeek",
+      "supports_tool_call": true,
+      "default_agent_appointment": "cost-efficient-coding-agent",
+      "default_skills_needed": [
+        "coding",
+        "math",
+        "batch-analysis"
+      ],
+      "strengths": [
+        "Cost-effective coding and math",
+        "Strong performance for structured reasoning"
+      ],
+      "best_for": [
+        "Budget-sensitive coding",
+        "Large-volume analytical passes"
+      ],
+      "avoid_when": [
+        "Highest-stakes writing polish"
+      ],
+      "recommended_reasoning_level": "medium",
+      "cost_tier": "low-medium",
+      "latency_tier": "fast"
+    },
+    "glm5": {
+      "provider": "openai_compatible",
+      "model": "glm-5",
+      "display_name": "GLM5",
+      "supports_tool_call": true,
+      "default_agent_appointment": "multilingual-agent",
+      "default_skills_needed": [
+        "multilingual",
+        "general-chat"
+      ],
+      "strengths": [
+        "Practical multilingual handling",
+        "Efficient general-purpose generation"
+      ],
+      "best_for": [
+        "General chat",
+        "Mixed-language workflows"
+      ],
+      "avoid_when": [
+        "Very deep chain-of-thought tasks"
+      ],
+      "recommended_reasoning_level": "low-medium",
+      "cost_tier": "low",
+      "latency_tier": "fast"
+    }
+  },
+  "reasoning_level_guide": {
+    "low": {
+      "use_when": "Simple extraction, formatting, or direct Q&A.",
+      "target": "lowest cost and latency"
+    },
+    "low-medium": {
+      "use_when": "Routine business logic with small ambiguity.",
+      "target": "balanced speed and quality"
+    },
+    "medium": {
+      "use_when": "Most coding, analysis, and report drafting tasks.",
+      "target": "default setting for agents"
+    },
+    "medium-high": {
+      "use_when": "Non-trivial planning and higher quality synthesis.",
+      "target": "higher accuracy while containing cost"
+    },
+    "high": {
+      "use_when": "Complex, high-stakes, ambiguous decisions.",
+      "target": "maximum reasoning depth"
+    }
+  }
+}
