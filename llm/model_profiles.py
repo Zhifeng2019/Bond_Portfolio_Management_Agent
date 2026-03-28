@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 MODEL_CATALOG: Dict[str, Dict[str, Any]] = {
     "claude-opus": {
         "provider": "anthropic",
-        "model": "claude-opus-4-1",
+        "model": "claude-opus-4-6",
         "display_name": "Claude Opus",
         "supports_tool_call": True,
         "default_agent_appointment": "senior-analyst-agent",
@@ -32,7 +32,7 @@ MODEL_CATALOG: Dict[str, Dict[str, Any]] = {
     },
     "claude-sonnet": {
         "provider": "anthropic",
-        "model": "claude-sonnet-4-5",
+        "model": "claude-sonnet-4-6",
         "display_name": "Claude Sonnet",
         "supports_tool_call": True,
         "default_agent_appointment": "general-purpose-agent",
@@ -146,6 +146,10 @@ REASONING_LEVEL_GUIDE: Dict[str, Dict[str, Any]] = {
         "use_when": "Complex, high-stakes, ambiguous decisions.",
         "target": "maximum reasoning depth",
     },
+    "adaptive": {
+		"use_when": "When task complexity is unknown or variable.",
+		"target": "dynamically adjust reasoning depth based on task needs",
+	},
 }
 
 
