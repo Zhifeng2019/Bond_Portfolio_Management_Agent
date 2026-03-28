@@ -2,15 +2,9 @@
   "models": {
     "claude-opus": {
       "provider": "anthropic",
-      "model": "claude-opus-4-1",
+      "model": "claude-opus-4-6",
       "display_name": "Claude Opus",
       "supports_tool_call": true,
-      "default_agent_appointment": "senior-analyst-agent",
-      "default_skills_needed": [
-        "deep-analysis",
-        "strategy",
-        "risk-synthesis"
-      ],
       "strengths": [
         "Deep reasoning for ambiguous tasks",
         "High quality long-form writing",
@@ -34,12 +28,6 @@
       "model": "claude-sonnet-4-5",
       "display_name": "Claude Sonnet",
       "supports_tool_call": true,
-      "default_agent_appointment": "general-purpose-agent",
-      "default_skills_needed": [
-        "coding",
-        "editing",
-        "reporting"
-      ],
       "strengths": [
         "Balanced quality, speed, and cost",
         "Reliable coding and editing",
@@ -57,17 +45,33 @@
       "cost_tier": "medium",
       "latency_tier": "fast"
     },
+    "claude-haiku": {
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5",
+      "display_name": "Claude Haiku",
+      "supports_tool_call": true,
+      "strengths": [
+        "The fastest model with near-frontier intelligence",
+        "Economical price for high-quality output with extended thinking"
+      ],
+      "best_for": [
+        "Real-time applications",
+        "High-volume intelligent processing",
+        "Cost-sensitive deployments needing strong reasoning",
+        "Sub agent work where latency is critical"
+      ],
+      "avoid_when": [
+        "When maximum reasoning depth is required"
+      ],
+      "recommended_reasoning_level": "medium",
+      "cost_tier": "medium",
+      "latency_tier": "fast"
+    },
     "gpt": {
       "provider": "openai",
-      "model": "gpt-5",
+      "model": "gpt-5.4",
       "display_name": "GPT",
       "supports_tool_call": true,
-      "default_agent_appointment": "orchestrator-agent",
-      "default_skills_needed": [
-        "tool-use",
-        "coding",
-        "structured-output"
-      ],
       "strengths": [
         "Strong tool-use and coding workflows",
         "Robust instruction following",
@@ -85,17 +89,31 @@
       "cost_tier": "high",
       "latency_tier": "fast-medium"
     },
-    "deepseek": {
-      "provider": "openai_compatible",
+    "deepseek-chat": {
+      "provider": "deepseek",
       "model": "deepseek-chat",
-      "display_name": "DeepSeek",
+      "display_name": "DeepSeek Chat",
       "supports_tool_call": true,
-      "default_agent_appointment": "cost-efficient-coding-agent",
-      "default_skills_needed": [
-        "coding",
-        "math",
-        "batch-analysis"
+      "strengths": [
+        "Cost-effective coding and math",
+        "Strong performance for structured reasoning"
       ],
+      "best_for": [
+        "Budget-sensitive coding",
+        "Large-volume analytical passes"
+      ],
+      "avoid_when": [
+        "Highest-stakes writing polish"
+      ],
+      "recommended_reasoning_level": "medium",
+      "cost_tier": "low-medium",
+      "latency_tier": "fast"
+    },
+    "deepseek-reasoner": {
+      "provider": "deepseek",
+      "model": "deepseek-reasoner",
+      "display_name": "DeepSeek Reasoner",
+      "supports_tool_call": true,
       "strengths": [
         "Cost-effective coding and math",
         "Strong performance for structured reasoning"
@@ -116,11 +134,6 @@
       "model": "glm-5",
       "display_name": "GLM5",
       "supports_tool_call": true,
-      "default_agent_appointment": "multilingual-agent",
-      "default_skills_needed": [
-        "multilingual",
-        "general-chat"
-      ],
       "strengths": [
         "Practical multilingual handling",
         "Efficient general-purpose generation"
