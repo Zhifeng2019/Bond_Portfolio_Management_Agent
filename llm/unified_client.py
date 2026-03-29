@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+from enum import Enum
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 from dotenv import load_dotenv
@@ -33,7 +34,7 @@ class BaseProvider:
 	def chat(
 		self,
 		*,
-		model: str,
+		model: Optional[str] = None,
 		messages: list[dict[str, str]],
 		tools: Optional[list[dict[str, Any]]] = None,
 		tool_choice: Optional[str] = None,
@@ -44,17 +45,65 @@ class BaseProvider:
 		raise NotImplementedError
 
 
-class OpenAICompatibleProvider(BaseProvider):
+class ProviderDefaultModels(Enum):
+	"""Central registry for provider-level default model keys."""
+
+	OPENAI = "gpt-pro"
+	DEEPSEEK = "deepseek-chat"
+	GLM = "glm5"
+	ANTHROPIC = "claude-sonnet"
+	GOOGLE = "gemini-pro"
+
+	@classmethod
+	def get_default_model(cls, provider_name: str) -> str:
+		try:
+			return cls[provider_name.upper()].value
+		except KeyError as exc:
+			raise ProviderError(f"No default model configured for provider '{provider_name}'.") from exc
+
+
+def _resolve_provider_model_name(provider_name: str, model: Optional[str]) -> str:
+	if model:
+		return model
+	default_model_key = ProviderDefaultModels.get_default_model(provider_name)
+	profile = get_model_profile(default_model_key)
+	return profile["model"]
+
+
+class OpenAIProvider(BaseProvider):
 	"""Works with OpenAI-compatible chat/completions APIs."""
 
-	def __init__(self, base_url: str, api_key: str):
+	def __init__(
+		self,
+		base_url: Optional[str] = None,
+		api_key: Optional[str] = None,
+		*,
+		provider_name: str = "openai",
+		env_api_key_var: str = "OPENAI_API_KEY",
+		env_base_url_var: str = "OPENAI_BASE_URL",
+		default_base_url: str = "https://api.openai.com/v1",
+	):
 		import openai as _openai
-		self._client = _openai.OpenAI(api_key=api_key, base_url=base_url)
+
+		resolved_api_key = api_key or os.getenv(env_api_key_var)
+		resolved_base_url = base_url or os.getenv(env_base_url_var) or default_base_url
+
+		if not resolved_api_key:
+			raise ProviderError(
+				f"OpenAI provider requires api_key or env var '{env_api_key_var}'."
+			)
+		if not resolved_base_url:
+			raise ProviderError(
+				f"OpenAI provider requires base_url or env var '{env_base_url_var}'."
+			)
+
+		self._provider_name = provider_name
+		self._client = _openai.OpenAI(api_key=resolved_api_key, base_url=resolved_base_url)
 
 	def chat(
 		self,
 		*,
-		model: str,
+		model: Optional[str] = None,
 		messages: list[dict[str, str]],
 		tools: Optional[list[dict[str, Any]]] = None,
 		tool_choice: Optional[str] = None,
@@ -62,8 +111,9 @@ class OpenAICompatibleProvider(BaseProvider):
 		temperature: Optional[float] = None,
 		max_tokens: Optional[int] = None,
 	) -> Dict[str, Any]:
+		resolved_model = _resolve_provider_model_name(self._provider_name, model)
 		kwargs: Dict[str, Any] = {
-			"model": model,
+			"model": resolved_model,
 			"messages": messages,
 		}
 		if temperature is not None:
@@ -80,19 +130,32 @@ class OpenAICompatibleProvider(BaseProvider):
 		try:
 			response = self._client.chat.completions.create(**kwargs)
 			return response.model_dump()
-		except Exception as exc:  # noqa: BLE001
-			raise ProviderError(f"OpenAI-compatible provider call failed: {exc}") from exc
+		except Exception as exc:
+			raise ProviderError(f"OpenAI provider call failed: {exc}") from exc
 
 
 class AnthropicProvider(BaseProvider):
-	def __init__(self, api_key: str, base_url: str = "https://api.anthropic.com"):
+	def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None):
 		import anthropic as _anthropic
-		self._client = _anthropic.Anthropic(api_key=api_key, base_url=base_url)
+
+		resolved_api_key = api_key or os.getenv("ANTHROPIC_API_KEY")
+		resolved_base_url = base_url or os.getenv("ANTHROPIC_BASE_URL") or "https://api.anthropic.com"
+
+		if not resolved_api_key:
+			raise ProviderError(
+				"Anthropic provider requires api_key or env var 'ANTHROPIC_API_KEY'."
+			)
+		if not resolved_base_url:
+			raise ProviderError(
+				"Anthropic provider requires base_url or env var 'ANTHROPIC_BASE_URL'."
+			)
+
+		self._client = _anthropic.Anthropic(api_key=resolved_api_key, base_url=resolved_base_url)
 
 	def chat(
 		self,
 		*,
-		model: str,
+		model: Optional[str] = None,
 		messages: list[dict[str, str]],
 		tools: Optional[list[dict[str, Any]]] = None,
 		tool_choice: Optional[str] = None,
@@ -102,11 +165,12 @@ class AnthropicProvider(BaseProvider):
 	) -> Dict[str, Any]:
 		system_parts = [m["content"] for m in messages if m["role"] == "system"]
 		dialog = [m for m in messages if m["role"] != "system"]
+		resolved_model = _resolve_provider_model_name("anthropic", model)
 
 		kwargs: Dict[str, Any] = {
-			"model": model,
+			"model": resolved_model,
 			"messages": dialog,
-			"max_tokens": max_tokens or 1024,
+			"max_tokens": max_tokens or 64*1024,
 		}
 		if system_parts:
 			kwargs["system"] = "\n\n".join(system_parts)
@@ -115,16 +179,117 @@ class AnthropicProvider(BaseProvider):
 		if tool_choice is not None:
 			kwargs["tool_choice"] = tool_choice
 		if reasoning_level is not None:
+			kwargs["thinking"] = {"type": reasoning_level}
+		else:
 			kwargs["thinking"] = {"type": "adaptive"}
-		elif temperature is not None:
+		if temperature is not None:
 			# temperature and extended thinking are mutually exclusive
 			kwargs["temperature"] = temperature
 
 		try:
 			response = self._client.messages.create(**kwargs)
 			return response.model_dump()
-		except Exception as exc:  # noqa: BLE001
+		except Exception as exc:
 			raise ProviderError(f"Anthropic provider call failed: {exc}") from exc
+
+
+class GoogleGenAIProvider(BaseProvider):
+	"""Google provider using the google-genai package."""
+
+	def __init__(self, api_key: Optional[str] = None):
+		from google import genai as _genai
+
+		resolved_api_key = api_key or os.getenv("GOOGLE_API_KEY")
+		if not resolved_api_key:
+			raise ProviderError(
+				"Google GenAI provider requires api_key or env var 'GOOGLE_API_KEY'."
+			)
+
+		self._client = _genai.Client(api_key=resolved_api_key)
+
+	@staticmethod
+	def _to_google_tool_declarations(tools: list[dict[str, Any]]) -> list[dict[str, Any]]:
+		declarations: list[dict[str, Any]] = []
+		for tool in tools:
+			if tool.get("type") != "function":
+				continue
+			fn = tool.get("function", {})
+			name = fn.get("name")
+			if not name:
+				continue
+			decl: dict[str, Any] = {
+				"name": name,
+				"description": fn.get("description", ""),
+				"parameters": fn.get("parameters", {"type": "object", "properties": {}}),
+			}
+			declarations.append(decl)
+		return declarations
+
+	def chat(
+		self,
+		*,
+		model: Optional[str] = None,
+		messages: list[dict[str, str]],
+		tools: Optional[list[dict[str, Any]]] = None,
+		tool_choice: Optional[str] = None,
+		reasoning_level: Optional[str] = None,
+		temperature: Optional[float] = None,
+		max_tokens: Optional[int] = None,
+	) -> Dict[str, Any]:
+		resolved_model = _resolve_provider_model_name("google", model)
+		system_parts = [m.get("content", "") for m in messages if m.get("role") == "system"]
+		contents: list[dict[str, Any]] = []
+		for msg in messages:
+			role = msg.get("role")
+			if role == "system":
+				continue
+			if role == "assistant":
+				google_role = "model"
+			else:
+				google_role = "user"
+			content = msg.get("content", "")
+			if not content:
+				continue
+			contents.append({"role": google_role, "parts": [{"text": content}]})
+
+		config: Dict[str, Any] = {}
+		if system_parts:
+			config["system_instruction"] = "\n\n".join([p for p in system_parts if p])
+		if temperature is not None:
+			config["temperature"] = temperature
+		if max_tokens is not None:
+			config["max_output_tokens"] = max_tokens
+		if reasoning_level is not None:
+			config["thinking_config"] = {"thinking_budget": _thinking_tokens(reasoning_level)}
+		if tools:
+			declarations = self._to_google_tool_declarations(tools)
+			if declarations:
+				config["tools"] = [{"function_declarations": declarations}]
+				if tool_choice in {"none", "auto", "required"}:
+					config["tool_config"] = {
+						"function_calling_config": {"mode": tool_choice.upper()}
+					}
+
+		kwargs: Dict[str, Any] = {
+			"model": resolved_model,
+			"contents": contents,
+		}
+		if config:
+			kwargs["config"] = config
+
+		try:
+			response = self._client.models.generate_content(**kwargs)
+			if hasattr(response, "to_json_dict"):
+				payload = response.to_json_dict()
+			elif hasattr(response, "model_dump"):
+				payload = response.model_dump()
+			else:
+				payload = {"text": getattr(response, "text", "")}
+			if "text" not in payload:
+				payload["text"] = getattr(response, "text", "")
+			return payload
+		except Exception as exc:  # noqa: BLE001
+			raise ProviderError(f"Google GenAI provider call failed: {exc}") from exc
 
 
 def _thinking_tokens(reasoning_level: str) -> int:
@@ -144,6 +309,7 @@ class UnifiedLLMClient:
 
 	def __init__(self) -> None:
 		self._providers: Dict[str, BaseProvider] = {}
+		self.register_default_providers_from_env()
 
 	def register_provider(self, name: str, provider: BaseProvider) -> None:
 		self._providers[name] = provider
@@ -152,26 +318,39 @@ class UnifiedLLMClient:
 		openai_key = os.getenv("OPENAI_API_KEY")
 		openai_base = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
 		if openai_key:
-			self.register_provider("openai", OpenAICompatibleProvider(openai_base, openai_key))
+			self.register_provider(
+				"openai",
+				OpenAIProvider(openai_base, openai_key, provider_name="openai"),
+			)
 
 		deepseek_key = os.getenv("DEEPSEEK_API_KEY")
 		deepseek_base = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
 		if deepseek_key:
-			self.register_provider("openai_compatible", OpenAICompatibleProvider(deepseek_base, deepseek_key))
+			self.register_provider(
+				"deepseek",
+				OpenAIProvider(deepseek_base, deepseek_key, provider_name="deepseek"),
+			)
 
 		glm_key = os.getenv("GLM_API_KEY")
 		glm_base = os.getenv("GLM_BASE_URL", "https://open.bigmodel.cn/api/paas/v4")
 		if glm_key:
-			self.register_provider("glm", OpenAICompatibleProvider(glm_base, glm_key))
+			self.register_provider(
+				"glm",
+				OpenAIProvider(glm_base, glm_key, provider_name="glm"),
+			)
 
 		anthropic_key = os.getenv("ANTHROPIC_API_KEY")
 		if anthropic_key:
 			self.register_provider("anthropic", AnthropicProvider(anthropic_key))
 
+		google_key = os.getenv("GOOGLE_API_KEY")
+		if google_key:
+			self.register_provider("google", GoogleGenAIProvider(google_key))
+
 	def chat(
 		self,
 		*,
-		model_key: str,
+		model_key: str="deepseek-reasoner",
 		user_message: str,
 		history: Optional[ChatHistory] = None,
 		trace_id: Optional[str] = None,
@@ -186,9 +365,6 @@ class UnifiedLLMClient:
 	) -> ChatResult:
 		profile = get_model_profile(model_key)
 		provider_name = profile["provider"]
-
-		if provider_name == "openai_compatible" and model_key == "glm5" and "glm" in self._providers:
-			provider_name = "glm"
 
 		if provider_name not in self._providers:
 			registered = ", ".join(sorted(self._providers)) or "none"
@@ -252,10 +428,20 @@ class UnifiedLLMClient:
 
 	@staticmethod
 	def _extract_text(*, provider_name: str, payload: Dict[str, Any]) -> str:
-		if provider_name in {"openai", "openai_compatible", "glm"}:
+		if provider_name in {"openai", "deepseek", "glm"}:
 			choices = payload.get("choices", [])
 			if choices:
 				return choices[0].get("message", {}).get("content", "")
+			return ""
+
+		if provider_name == "google":
+			if payload.get("text"):
+				return payload.get("text", "")
+			for candidate in payload.get("candidates", []) or []:
+				parts = candidate.get("content", {}).get("parts", [])
+				texts = [part.get("text", "") for part in parts if isinstance(part, dict) and part.get("text")]
+				if texts:
+					return "\n".join(texts)
 			return ""
 
 		if provider_name == "anthropic":
@@ -267,7 +453,7 @@ class UnifiedLLMClient:
 
 	@staticmethod
 	def _extract_tool_calls(*, provider_name: str, payload: Dict[str, Any]) -> list[dict[str, Any]]:
-		if provider_name in {"openai", "openai_compatible", "glm"}:
+		if provider_name in {"openai", "deepseek", "glm"}:
 			choices = payload.get("choices", [])
 			if not choices:
 				return []
@@ -301,6 +487,24 @@ class UnifiedLLMClient:
 							"id": block.get("id"),
 							"name": block.get("name"),
 							"arguments": block.get("input", {}),
+						}
+					)
+			return calls
+
+		if provider_name == "google":
+			calls: list[dict[str, Any]] = []
+			for candidate in payload.get("candidates", []) or []:
+				for part in candidate.get("content", {}).get("parts", []) or []:
+					if not isinstance(part, dict):
+						continue
+					function_call = part.get("functionCall") or part.get("function_call")
+					if not function_call:
+						continue
+					calls.append(
+						{
+							"id": function_call.get("id"),
+							"name": function_call.get("name"),
+							"arguments": function_call.get("args", {}),
 						}
 					)
 			return calls

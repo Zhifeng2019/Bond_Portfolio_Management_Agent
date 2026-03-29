@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 import json
+import os
 
 ## This catalog is intentionally explicit so agents can make deterministic routing choices.
 # Load the catalog from a JSON or YAML file in a real implementation for easier maintenance and updates.
-with open("model_catalog.json", "r") as f:
+with open(os.path.join(os.path.dirname(__file__), "model_catalog.json"), "r") as f:
     model_profile = json.load(f)
 MODEL_CATALOG = model_profile["models"]
 REASONING_LEVEL_GUIDE = model_profile["reasoning_level_guide"]
@@ -24,7 +25,7 @@ def recommend_model(task_tags: List[str], budget_sensitive: bool = False) -> str
     if "critical" in tags or "high-stakes" in tags or "complex-planning" in tags:
         return "claude-opus"
     if "coding" in tags or "tool-use" in tags or "agent" in tags:
-        return "deepseek" if budget_sensitive else "gpt"
+        return "deepseek-chat" if budget_sensitive else "gpt-pro"
     if "multilingual" in tags:
         return "glm5"
     return "claude-sonnet"

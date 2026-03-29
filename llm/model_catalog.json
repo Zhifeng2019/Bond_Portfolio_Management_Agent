@@ -25,7 +25,7 @@
     },
     "claude-sonnet": {
       "provider": "anthropic",
-      "model": "claude-sonnet-4-5",
+      "model": "claude-sonnet-4-6",
       "display_name": "Claude Sonnet",
       "supports_tool_call": true,
       "strengths": [
@@ -67,10 +67,10 @@
       "cost_tier": "medium",
       "latency_tier": "fast"
     },
-    "gpt": {
+    "gpt-pro": {
       "provider": "openai",
       "model": "gpt-5.4",
-      "display_name": "GPT",
+      "display_name": "GPT 5.4",
       "supports_tool_call": true,
       "strengths": [
         "Strong tool-use and coding workflows",
@@ -130,7 +130,7 @@
       "latency_tier": "fast"
     },
     "glm5": {
-      "provider": "openai_compatible",
+      "provider": "GLM",
       "model": "glm-5",
       "display_name": "GLM5",
       "supports_tool_call": true,
@@ -148,6 +148,69 @@
       "recommended_reasoning_level": "low-medium",
       "cost_tier": "low",
       "latency_tier": "fast"
+    },
+    "gemini-lite": {
+      "provider": "google",
+      "model": "gemini-3.1-flash-lite-preview",
+      "display_name": "Gemini 3.1 Flash Lite Preview",
+      "supports_tool_call": true,
+      "strengths": [
+        "Strong multimodal and long-context reasoning",
+        "Good performance on coding and analytical synthesis"
+      ],
+      "best_for": [
+        "Large-context analysis",
+        "Cross-document reasoning",
+        "Complex technical drafting"
+      ],
+      "avoid_when": [
+        "Ultra-low-latency simple transforms"
+      ],
+      "recommended_reasoning_level": "medium-high",
+      "cost_tier": "medium-high",
+      "latency_tier": "medium"
+    },
+    "gemini-flash": {
+      "provider": "google",
+      "model": "gemini-3-flash-preview",
+      "display_name": "Gemini 3 Flash Preview",
+      "supports_tool_call": true,
+      "strengths": [
+        "Strong multimodal and long-context reasoning",
+        "Good performance on coding and analytical synthesis"
+      ],
+      "best_for": [
+        "Large-context analysis",
+        "Cross-document reasoning",
+        "Complex technical drafting"
+      ],
+      "avoid_when": [
+        "Ultra-low-latency simple transforms"
+      ],
+      "recommended_reasoning_level": "medium-high",
+      "cost_tier": "medium-high",
+      "latency_tier": "medium"
+    },
+    "gemini-pro": {
+      "provider": "google",
+      "model": "gemini-3.1-pro-preview",
+      "display_name": "Gemini 3.1 Pro Preview",
+      "supports_tool_call": true,
+      "strengths": [
+        "Strong multimodal and long-context reasoning",
+        "Good performance on coding and analytical synthesis"
+      ],
+      "best_for": [
+        "Large-context analysis",
+        "Cross-document reasoning",
+        "Complex technical drafting"
+      ],
+      "avoid_when": [
+        "Ultra-low-latency simple transforms"
+      ],
+      "recommended_reasoning_level": "medium-high",
+      "cost_tier": "medium-high",
+      "latency_tier": "medium"
     }
   },
   "reasoning_level_guide": {
@@ -170,6 +233,10 @@
     "high": {
       "use_when": "Complex, high-stakes, ambiguous decisions.",
       "target": "maximum reasoning depth"
+    },
+    "adaptive": {
+      "use_when": "When you want the agent to choose based on task tags and budget sensitivity. This only works for Claude Opus and Sonnet.",
+      "target": "let the agent pick the best model for each task"
     }
   }
 }

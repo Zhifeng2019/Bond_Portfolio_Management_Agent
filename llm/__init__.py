@@ -6,15 +6,27 @@ from .model_profiles import (
     recommend_execution_plan,
     recommend_model,
 )
-from .unified_client import AnthropicProvider, ChatResult, OpenAICompatibleProvider, ProviderError, UnifiedLLMClient
+from .unified_client import (
+    AnthropicProvider,
+    ChatResult,
+    GoogleGenAIProvider,
+    LLM,
+    OpenAICompatibleProvider,
+    ProviderDefaultModels,
+    ProviderError,
+    UnifiedLLMClient,
+)
 
 __all__ = [
     "AnthropicProvider",
     "ChatHistory",
     "ChatMessage",
     "ChatResult",
+    "GoogleGenAIProvider",
+    "LLM",
     "MODEL_CATALOG",
     "OpenAICompatibleProvider",
+    "ProviderDefaultModels",
     "ProviderError",
     "REASONING_LEVEL_GUIDE",
     "UnifiedLLMClient",
