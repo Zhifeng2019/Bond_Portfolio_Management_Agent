@@ -36,7 +36,7 @@ class BaseProvider:
 		*,
 		model: Optional[str] = None,
 		messages: list[dict[str, str]],
-		tools: Optional[list[dict[str, Any]]] = None,
+		tools: list[dict[str, Any]] = [],
 		tool_choice: Optional[str] = None,
 		reasoning_level: Optional[str] = None,
 		temperature: Optional[float] = None,
@@ -105,7 +105,7 @@ class OpenAIProvider(BaseProvider):
 		*,
 		model: Optional[str] = None,
 		messages: list[dict[str, str]],
-		tools: Optional[list[dict[str, Any]]] = None,
+		tools: list[dict[str, Any]] = [],
 		tool_choice: Optional[str] = None,
 		reasoning_level: Optional[str] = None,
 		temperature: Optional[float] = None,
@@ -120,7 +120,7 @@ class OpenAIProvider(BaseProvider):
 			kwargs["temperature"] = temperature
 		if max_tokens is not None:
 			kwargs["max_tokens"] = max_tokens
-		if tools:
+		if len(tools) > 0:
 			kwargs["tools"] = tools
 		if tool_choice is not None:
 			kwargs["tool_choice"] = tool_choice
@@ -157,7 +157,7 @@ class AnthropicProvider(BaseProvider):
 		*,
 		model: Optional[str] = None,
 		messages: list[dict[str, str]],
-		tools: Optional[list[dict[str, Any]]] = None,
+		tools: list[dict[str, Any]] = [],
 		tool_choice: Optional[str] = None,
 		reasoning_level: Optional[str] = None,
 		temperature: Optional[float] = None,
@@ -174,7 +174,7 @@ class AnthropicProvider(BaseProvider):
 		}
 		if system_parts:
 			kwargs["system"] = "\n\n".join(system_parts)
-		if tools:
+		if len(tools) > 0:
 			kwargs["tools"] = tools
 		if tool_choice is not None:
 			kwargs["tool_choice"] = tool_choice
@@ -230,7 +230,7 @@ class GoogleGenAIProvider(BaseProvider):
 		*,
 		model: Optional[str] = None,
 		messages: list[dict[str, str]],
-		tools: Optional[list[dict[str, Any]]] = None,
+		tools: list[dict[str, Any]] = [],
 		tool_choice: Optional[str] = None,
 		reasoning_level: Optional[str] = None,
 		temperature: Optional[float] = None,
@@ -300,6 +300,7 @@ def _thinking_tokens(reasoning_level: str) -> int:
 		"medium": 4096,
 		"medium-high": 8192,
 		"high": 16384,
+		"adaptive": 4096,  # Let the provider decide based on the conversation
 	}
 	return mapping.get(level, 4096)
 
@@ -354,7 +355,7 @@ class UnifiedLLMClient:
 		user_message: str,
 		history: Optional[ChatHistory] = None,
 		trace_id: Optional[str] = None,
-		tools: Optional[list[dict[str, Any]]] = None,
+		tools: list[dict[str, Any]] = [],
 		tool_choice: Optional[str] = None,
 		agent_appointment: Optional[str] = None,
 		skills_needed: Optional[list[str]] = None,
