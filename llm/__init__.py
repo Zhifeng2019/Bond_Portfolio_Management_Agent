@@ -6,6 +6,12 @@ from .model_profiles import (
     recommend_execution_plan,
     recommend_model,
 )
+from .tools import (
+    ROUTING_TOOL_HANDLERS,
+    execute_routing_tool,
+    get_routing_tool_schemas,
+    is_routing_tool,
+)
 from .unified_client import (
     AnthropicProvider,
     ChatResult,
@@ -29,7 +35,11 @@ __all__ = [
     "ProviderDefaultModels",
     "ProviderError",
     "REASONING_LEVEL_GUIDE",
+    "ROUTING_TOOL_HANDLERS",
     "UnifiedLLMClient",
+    "execute_routing_tool",
+    "get_routing_tool_schemas",
+    "is_routing_tool",
     "get_model_profile",
     "recommend_execution_plan",
     "recommend_model",

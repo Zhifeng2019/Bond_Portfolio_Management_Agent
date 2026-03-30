@@ -30,7 +30,7 @@ class ChatResult:
 	raw_response: Dict[str, Any]
 
 
-class BaseProvider:
+class BaseModel:
 	def chat(
 		self,
 		*,
@@ -70,7 +70,7 @@ def _resolve_provider_model_name(provider_name: str, model: Optional[str]) -> st
 	return profile["model"]
 
 
-class OpenAIProvider(BaseProvider):
+class OpenAIModelProvider(BaseModel):
 	"""Works with OpenAI-compatible chat/completions APIs."""
 
 	def __init__(
@@ -134,7 +134,7 @@ class OpenAIProvider(BaseProvider):
 			raise ProviderError(f"OpenAI provider call failed: {exc}") from exc
 
 
-class AnthropicProvider(BaseProvider):
+class AnthropicModelProvider(BaseModel):
 	def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None):
 		import anthropic as _anthropic
 
@@ -193,7 +193,7 @@ class AnthropicProvider(BaseProvider):
 			raise ProviderError(f"Anthropic provider call failed: {exc}") from exc
 
 
-class GoogleGenAIProvider(BaseProvider):
+class GoogleGenAIModelProvider(BaseModel):
 	"""Google provider using the google-genai package."""
 
 	def __init__(self, api_key: Optional[str] = None):
@@ -305,48 +305,53 @@ def _thinking_tokens(reasoning_level: str) -> int:
 	return mapping.get(level, 4096)
 
 
-class UnifiedLLMClient:
+class LLM:
 	"""Single interface for multiple LLM vendors with traceable history support."""
 
 	def __init__(self) -> None:
-		self._providers: Dict[str, BaseProvider] = {}
-		self.register_default_providers_from_env()
+		self.register_default_model_providers()
 
-	def register_provider(self, name: str, provider: BaseProvider) -> None:
-		self._providers[name] = provider
+	def register_model_provider(self, name: str, model: BaseModel) -> None:
+		self._model_providers[name] = model
 
-	def register_default_providers_from_env(self) -> None:
+	def register_default_model_providers(self) -> None:
 		openai_key = os.getenv("OPENAI_API_KEY")
 		openai_base = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
 		if openai_key:
-			self.register_provider(
-				"openai",
-				OpenAIProvider(openai_base, openai_key, provider_name="openai"),
+			self.register_model_provider(
+				ProviderDefaultModels.OPENAI.name,
+				OpenAIModelProvider(openai_base, openai_key, provider_name=ProviderDefaultModels.OPENAI.name),
 			)
 
 		deepseek_key = os.getenv("DEEPSEEK_API_KEY")
 		deepseek_base = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
 		if deepseek_key:
-			self.register_provider(
-				"deepseek",
-				OpenAIProvider(deepseek_base, deepseek_key, provider_name="deepseek"),
+			self.register_model_provider(
+				ProviderDefaultModels.DEEPSEEK.name,
+				OpenAIModelProvider(deepseek_base, deepseek_key, provider_name=ProviderDefaultModels.DEEPSEEK.name),
 			)
 
 		glm_key = os.getenv("GLM_API_KEY")
 		glm_base = os.getenv("GLM_BASE_URL", "https://open.bigmodel.cn/api/paas/v4")
 		if glm_key:
-			self.register_provider(
-				"glm",
-				OpenAIProvider(glm_base, glm_key, provider_name="glm"),
+			self.register_model_provider(
+				ProviderDefaultModels.GLM.name,
+				OpenAIModelProvider(glm_base, glm_key, provider_name=ProviderDefaultModels.GLM.name),
 			)
 
 		anthropic_key = os.getenv("ANTHROPIC_API_KEY")
 		if anthropic_key:
-			self.register_provider("anthropic", AnthropicProvider(anthropic_key))
-
+			self.register_model_provider(
+				ProviderDefaultModels.ANTHROPIC.name, 
+				AnthropicModelProvider(anthropic_key)
+			)
+		
 		google_key = os.getenv("GOOGLE_API_KEY")
 		if google_key:
-			self.register_provider("google", GoogleGenAIProvider(google_key))
+			self.register_model_provider(
+				ProviderDefaultModels.GOOGLE.name, 
+				GoogleGenAIModelProvider(google_key)
+			)
 
 	def chat(
 		self,
@@ -367,8 +372,8 @@ class UnifiedLLMClient:
 		profile = get_model_profile(model_key)
 		provider_name = profile["provider"]
 
-		if provider_name not in self._providers:
-			registered = ", ".join(sorted(self._providers)) or "none"
+		if provider_name not in self._model_providers:
+			registered = ", ".join(sorted(self._model_providers)) or "none"
 			raise ProviderError(
 				f"Provider '{provider_name}' is not registered. Registered providers: {registered}"
 			)
@@ -386,7 +391,7 @@ class UnifiedLLMClient:
 			metadata=metadata,
 		)
 
-		raw = self._providers[provider_name].chat(
+		raw = self._model_providers[provider_name].chat(
 			model=profile["model"],
 			messages=history.to_provider_messages(),
 			tools=tools,
@@ -509,5 +514,5 @@ class UnifiedLLMClient:
 						}
 					)
 			return calls
-
 		return []
+    

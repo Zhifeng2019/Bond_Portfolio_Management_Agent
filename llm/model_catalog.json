@@ -6,20 +6,21 @@
       "display_name": "Claude Opus",
       "supports_tool_call": true,
       "strengths": [
-        "Deep reasoning for ambiguous tasks",
-        "High quality long-form writing",
-        "Complex planning and multi-step analysis"
+        "Most intelligent Claude model for agents and coding",
+        "Excellent reasoning quality on ambiguous multi-step problems",
+        "Strong long-context synthesis for high-stakes outputs"
       ],
       "best_for": [
-        "Critical reports",
-        "Hard architecture decisions",
-        "Detailed synthesis from many inputs"
+        "Critical reports and decision memos",
+        "Hard architecture or strategy decisions",
+        "Complex agent planning with many constraints",
+        "Complex and production grade coding tasks"
       ],
       "avoid_when": [
-        "Simple low-cost classification",
-        "High-throughput trivial transforms"
+        "High-throughput simple transforms where cost is primary",
+        "Low-complexity tasks where a faster, cheaper model is sufficient"
       ],
-      "recommended_reasoning_level": "high",
+      "recommended_reasoning_level": "adaptive",
       "cost_tier": "high",
       "latency_tier": "medium"
     },
@@ -29,19 +30,20 @@
       "display_name": "Claude Sonnet",
       "supports_tool_call": true,
       "strengths": [
-        "Balanced quality, speed, and cost",
-        "Reliable coding and editing",
-        "Good instruction following"
+        "Best Claude balance of speed and intelligence",
+        "Reliable coding, editing, and tool-use workflows",
+        "Strong general-purpose instruction following"
       ],
       "best_for": [
-        "General agent work",
-        "Code generation and refactoring",
-        "Report drafting"
+        "Default model for general agent work",
+        "Code generation, refactoring, and iterative debugging",
+        "Drafting and analysis tasks at production scale"
       ],
       "avoid_when": [
-        "When maximum reasoning depth is required"
+        "When you need the absolute highest reasoning quality",
+        "Ultra-low-cost, ultra-high-volume batch processing"
       ],
-      "recommended_reasoning_level": "medium",
+      "recommended_reasoning_level": "adaptive",
       "cost_tier": "medium",
       "latency_tier": "fast"
     },
@@ -51,17 +53,19 @@
       "display_name": "Claude Haiku",
       "supports_tool_call": true,
       "strengths": [
-        "The fastest model with near-frontier intelligence",
-        "Economical price for high-quality output with extended thinking"
+        "Fastest Claude model with strong quality for its speed tier",
+        "Low-cost option for high-throughput production traffic",
+        "Supports extended thinking for compact reasoning tasks"
       ],
       "best_for": [
-        "Real-time applications",
-        "High-volume intelligent processing",
-        "Cost-sensitive deployments needing strong reasoning",
-        "Sub agent work where latency is critical"
+        "Real-time or near-real-time application paths",
+        "Large-volume routine assistant and extraction workloads",
+        "Sub-agent tasks where latency and cost dominate"
       ],
       "avoid_when": [
-        "When maximum reasoning depth is required"
+        "When maximum reasoning depth is required",
+        "When tasks require adaptive thinking selection",
+        "When context needs regularly exceed its context window"
       ],
       "recommended_reasoning_level": "medium",
       "cost_tier": "medium",
@@ -73,17 +77,18 @@
       "display_name": "GPT 5.4",
       "supports_tool_call": true,
       "strengths": [
-        "Strong tool-use and coding workflows",
-        "Robust instruction following",
-        "High quality structured output"
+        "Flagship GPT model for complex reasoning and coding",
+        "Strong agentic workflows with broad tool support",
+        "Reliable structured outputs and instruction adherence"
       ],
       "best_for": [
-        "Agent orchestration",
-        "Code tasks",
-        "Schema-constrained responses"
+        "Complex agent orchestration and multi-tool tasks",
+        "High-quality coding and technical problem solving",
+        "Schema-constrained or workflow-integrated responses"
       ],
       "avoid_when": [
-        "Ultra-low-cost batch operations"
+        "Ultra-low-cost or ultra-low-latency batch operations",
+        "Simple requests where mini or nano class models are enough"
       ],
       "recommended_reasoning_level": "medium-high",
       "cost_tier": "high",
@@ -95,15 +100,18 @@
       "display_name": "DeepSeek Chat",
       "supports_tool_call": true,
       "strengths": [
-        "Cost-effective coding and math",
-        "Strong performance for structured reasoning"
+        "Cost-effective non-thinking mode for fast responses",
+        "Good price-performance for general coding and analysis",
+        "Supports JSON output and tool calling"
       ],
       "best_for": [
-        "Budget-sensitive coding",
-        "Large-volume analytical passes"
+        "Budget-sensitive coding and assistant flows",
+        "High-volume workloads prioritizing speed and cost",
+        "Routine structured tasks with moderate complexity"
       ],
       "avoid_when": [
-        "Highest-stakes writing polish"
+        "Complex reasoning tasks that benefit from explicit thinking mode",
+        "Very long, multi-step analyses needing larger reasoning traces"
       ],
       "recommended_reasoning_level": "medium",
       "cost_tier": "low-medium",
@@ -115,15 +123,18 @@
       "display_name": "DeepSeek Reasoner",
       "supports_tool_call": true,
       "strengths": [
-        "Cost-effective coding and math",
-        "Strong performance for structured reasoning"
+        "Thinking mode optimized for deeper step-by-step reasoning",
+        "Strong for complex coding, math, and analytical decomposition",
+        "Supports JSON output and tool calling"
       ],
       "best_for": [
-        "Budget-sensitive coding",
-        "Large-volume analytical passes"
+        "Complex reasoning-heavy coding and analytical tasks",
+        "Difficult problem solving where solution quality matters",
+        "Cases that benefit from longer generated reasoning outputs"
       ],
       "avoid_when": [
-        "Highest-stakes writing polish"
+        "Ultra-low-latency request paths",
+        "Simple high-volume tasks where non-thinking mode is sufficient"
       ],
       "recommended_reasoning_level": "medium",
       "cost_tier": "low-medium",
@@ -135,15 +146,18 @@
       "display_name": "GLM5",
       "supports_tool_call": true,
       "strengths": [
-        "Practical multilingual handling",
-        "Efficient general-purpose generation"
+        "Latest GLM flagship base model",
+        "Strong coding capabilities and agentic long-horizon planning",
+        "Large context and output limits for complex workflows"
       ],
       "best_for": [
-        "General chat",
-        "Mixed-language workflows"
+        "Complex agent workflows requiring long planning and execution",
+        "Coding-intensive tasks and technical assistants",
+        "Mixed-language enterprise workflows"
       ],
       "avoid_when": [
-        "Very deep chain-of-thought tasks"
+        "Ultra-low-latency or minimal-cost inference paths",
+        "Very simple chat tasks where lightweight models are enough"
       ],
       "recommended_reasoning_level": "low-medium",
       "cost_tier": "low",
@@ -155,16 +169,18 @@
       "display_name": "Gemini 3.1 Flash Lite Preview",
       "supports_tool_call": true,
       "strengths": [
-        "Strong multimodal and long-context reasoning",
-        "Good performance on coding and analytical synthesis"
+        "Frontier-class quality at low cost in the Flash-Lite tier",
+        "Optimized for fast, high-volume multimodal workloads",
+        "Strong price-performance for routine reasoning tasks"
       ],
       "best_for": [
-        "Large-context analysis",
-        "Cross-document reasoning",
-        "Complex technical drafting"
+        "Latency-sensitive and budget-sensitive production workloads",
+        "Large-scale request volume with acceptable quality",
+        "General multimodal assistant tasks"
       ],
       "avoid_when": [
-        "Ultra-low-latency simple transforms"
+        "Deepest reasoning and hardest problem solving",
+        "Highest-stakes technical outputs where Pro is preferred"
       ],
       "recommended_reasoning_level": "medium-high",
       "cost_tier": "medium-high",
@@ -176,16 +192,18 @@
       "display_name": "Gemini 3 Flash Preview",
       "supports_tool_call": true,
       "strengths": [
-        "Strong multimodal and long-context reasoning",
-        "Good performance on coding and analytical synthesis"
+        "Frontier-class performance at a fraction of larger-model cost",
+        "Strong multimodal understanding with fast response times",
+        "Good quality-speed tradeoff for production assistants"
       ],
       "best_for": [
-        "Large-context analysis",
-        "Cross-document reasoning",
-        "Complex technical drafting"
+        "General-purpose multimodal agent and assistant workloads",
+        "Balanced coding, analysis, and content generation",
+        "Applications needing strong quality with lower latency than Pro"
       ],
       "avoid_when": [
-        "Ultra-low-latency simple transforms"
+        "Most complex reasoning tasks best handled by Pro",
+        "Extreme cost-minimization scenarios better suited to Lite"
       ],
       "recommended_reasoning_level": "medium-high",
       "cost_tier": "medium-high",
@@ -197,16 +215,18 @@
       "display_name": "Gemini 3.1 Pro Preview",
       "supports_tool_call": true,
       "strengths": [
-        "Strong multimodal and long-context reasoning",
-        "Good performance on coding and analytical synthesis"
+        "Advanced intelligence for complex problem solving",
+        "Strong deep reasoning, coding, and agentic capabilities",
+        "High-quality synthesis for challenging multi-step tasks"
       ],
       "best_for": [
-        "Large-context analysis",
-        "Cross-document reasoning",
-        "Complex technical drafting"
+        "Hard reasoning and complex technical workflows",
+        "Advanced coding and high-quality analytical synthesis",
+        "High-stakes tasks where answer quality is prioritized"
       ],
       "avoid_when": [
-        "Ultra-low-latency simple transforms"
+        "Latency-critical high-volume paths",
+        "Routine low-complexity tasks where Flash or Flash-Lite is enough"
       ],
       "recommended_reasoning_level": "medium-high",
       "cost_tier": "medium-high",
